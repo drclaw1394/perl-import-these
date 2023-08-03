@@ -9,7 +9,8 @@ my $res=eval {cannonpath( "a") };
 
 ok $@,  "Unlisted import";
 
-my $res=eval {catfile( "a","b","c") };
+$res=eval {catfile( "a","b","c") };
 
+print $@ if $@;
 ok !$@,  "Listed import";
 done_testing;
