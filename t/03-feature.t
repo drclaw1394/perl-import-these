@@ -3,13 +3,11 @@ use warnings;
 
 use Test::More;
 
-use Import::These "Somthing::", "::", "File::", "::Spec::", "Functions"=>["catfile"];
+no warnings "experimental";
+use Import::These feature=>[< refaliasing>];
 
-my $res=eval {cannonpath( "a") };
+my $res=eval { \my @a=[10]; 1};
 
-ok $@,  "Unlisted import";
+ok !$@,  "feature import";
 
-$res=eval {catfile( "a","b","c") };
-
-ok !$@,  "Listed import";
 done_testing;
