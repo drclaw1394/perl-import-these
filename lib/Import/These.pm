@@ -135,14 +135,13 @@ Import::These -  Terse, Prefixed, Multiple imports
 =head1 SYNOPSIS
 
 Any name ending with :: is a prefix. Any later names in the list will use the
-prefix, until the prefix is set or otherwise modified
+prefix to create the full package name: 
 
   #Instead of this:
   #
   use Plack::Middleware::Session;
   use Plack::Middleware::Static;
   use Plack::Middleware::Lint;
-
   use IO::Compress::Gzip;
   use IO::Compress::Gunzip;
   use IO::Compress::Deflate;
@@ -164,7 +163,7 @@ Any name exactly equal to  :: clears the prefix,
   # Prefix::Another;
 
 
-A name beginning with :: and ending with :: appends the name to the prefix
+A name beginning with :: and ending with :: appends the name to the prefix:
 
   use Import::These "Plack::", "test", "::Middleware::", "Lint";
   # Plack::Test,
@@ -203,11 +202,11 @@ export levels.
 
 =head2 Simple Prefix
 
-A single prefix is used for  multiple packages:
+A single prefix used for  multiple packages:
 
   use Import::These qw<IO::Compress:: Gzip GunZip Defalte Inflate >;
 
-  #Imports:
+  # Equivalent to:
   # use IO::Compress::Gzip
   # use IO::Compress::GunZip
   # use IO::Compress::Deflate
@@ -219,7 +218,7 @@ Prefix is appended along the way:
 
   use Import::These qw<IO:: File ::Compress:: Gzip GunZip Defalte Inflate >;
   
-  #Imports:
+  # Equivalent to:
   # use IO::File
   # use IO::Compress::Gzip
   # use IO::Compress::GunZip
@@ -232,18 +231,57 @@ Completely change (reset) prefix to something else:
 
   use Import::These qw<File::Spec Functions :: Compress:: Gzip GunZip Defalte Inflate >;
 
-  #Imports:
+  # Equivalent to: 
   # use File::Spec::Functions
   # use IO::Compress::Gzip
   # use IO::Compress::GunZip
   # use IO::Compress::Deflate
   # use IO::Compress::Inflate
 
+
+=head2 No Default Import
+
+  use Import::These "File::Spec", "Functions"=>[];
+
+  # Equivalent to:
+  # use File::Spec::Functions ();
+  
+=head2 Import names/groups
+
+  use Import::These "File::Spec", "Functions"=>["catfile"];
+
+  # Equivalent to:
+  # use File::Spec::Functions ("catfile");
+
+
+=head2 With Perl Version
+
+  use Import::These "v5.36", "File::Spec::", "Functions";
+
+  # Equivalent to:
+  # use v5.36;
+  # use File::Spec::Functions;
+
 =head2 With Module Version
 
-Specify a module version
+  use Import::These "File::Spec::", "Functions", "v1.2";
 
-  use Import::These "File::Spec:: Functions 
+  # Equivalent to:
+  # use File::Spec::Functions v1.2;
+
+
+=head2 All Together Now
+
+  use Import::These qw<v5.36 File:: IO ::Spec:: Functions v1.2>, ["catfile"],  qw<:: IO::Compress:: Gzip GunZip Deflate Inflate>;
+
+  # Equivalent to:
+  # use v5.36;
+  # use File::IO;
+  # use File::Spec::Functions v1.2 "catfile"
+  # use IO::Compress::Gzip;
+  # use IO::Compress::GunZip;
+  # use IO::Compress::Deflate;
+  # use IO::Compress::Inflate;
 
 
 =head1 LIMITATIONS

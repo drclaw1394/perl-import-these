@@ -3,14 +3,13 @@ NAME
 
 SYNOPSIS
     Any name ending with :: is a prefix. Any later names in the list will
-    use the prefix, until the prefix is set or otherwise modified
+    use the prefix to create the full package name:
 
       #Instead of this:
       #
       use Plack::Middleware::Session;
       use Plack::Middleware::Static;
       use Plack::Middleware::Lint;
-
       use IO::Compress::Gzip;
       use IO::Compress::Gunzip;
       use IO::Compress::Deflate;
@@ -30,7 +29,7 @@ SYNOPSIS
       # Prefix::Another;
 
     A name beginning with :: and ending with :: appends the name to the
-    prefix
+    prefix:
 
       use Import::These "Plack::", "test", "::Middleware::", "Lint";
       # Plack::Test,
@@ -61,19 +60,93 @@ DESCRIPTION
     compatible with recursive exporters such as Export::These manipulating
     the export levels.
 
-USAGE
-    The usage is as per the synopsis example.
+USAGE EXAMPLES
+  Simple Prefix
+    A single prefix used for multiple packages:
+
+      use Import::These qw<IO::Compress:: Gzip GunZip Defalte Inflate >;
+
+      # Equivalent to:
+      # use IO::Compress::Gzip
+      # use IO::Compress::GunZip
+      # use IO::Compress::Deflate
+      # use IO::Compress::Inflate
+
+  Appending Prefix
+    Prefix is appended along the way:
+
+      use Import::These qw<IO:: File ::Compress:: Gzip GunZip Defalte Inflate >;
+  
+      # Equivalent to:
+      # use IO::File
+      # use IO::Compress::Gzip
+      # use IO::Compress::GunZip
+      # use IO::Compress::Deflate
+      # use IO::Compress::Inflate
+
+  Reset Prefix
+    Completely change (reset) prefix to something else:
+
+      use Import::These qw<File::Spec Functions :: Compress:: Gzip GunZip Defalte Inflate >;
+
+      # Equivalent to: 
+      # use File::Spec::Functions
+      # use IO::Compress::Gzip
+      # use IO::Compress::GunZip
+      # use IO::Compress::Deflate
+      # use IO::Compress::Inflate
+
+  No Default Import
+      use Import::These "File::Spec", "Functions"=>[];
+
+      # Equivalent to:
+      # use File::Spec::Functions ();
+
+  Import names/groups
+      use Import::These "File::Spec", "Functions"=>["catfile"];
+
+      # Equivalent to:
+      # use File::Spec::Functions ("catfile");
+
+  With Perl Version
+      use Import::These "v5.36", "File::Spec::", "Functions";
+
+      # Equivalent to:
+      # use v5.36;
+      # use File::Spec::Functions;
+
+  With Module Version
+      use Import::These "File::Spec::", "Functions", "v1.2";
+
+      # Equivalent to:
+      # use File::Spec::Functions v1.2;
+
+  All Together Now
+      use Import::These qw<v5.36 File:: IO ::Spec:: Functions v1.2>, ["catfile"],  qw<:: IO::Compress:: Gzip GunZip Deflate Inflate>;
+
+      # Equivalent to:
+      # use v5.36;
+      # use File::IO;
+      # use File::Spec::Functions v1.2 "catfile"
+      # use IO::Compress::Gzip;
+      # use IO::Compress::GunZip;
+      # use IO::Compress::Deflate;
+      # use IO::Compress::Inflate;
 
 LIMITATIONS
 TODO
-    Better tests
+    Possibly add module version support.
 
-COMPARISON
+COMPARISON TO OTHER MODULES
+    use gives the ability to specify Perl and Module versions which this
+    modules currently does not. However it doesn't support prefixes and uses
+    more RAM.
+
     import works by loading ALL packages under a common prefix. Whether you
     need them or not. That could be a lot of disk access and memory usage.
 
     modules has automatic module installation using CPAN. However no
-    prefix/wildcard support and uses a lot of ram for basic importing
+    prefix/wildcard support and uses a lot of RAM for basic importing
 
 REPOSITOTY and BUGS
     Please report and feature requests or bugs via the github repo:

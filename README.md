@@ -5,7 +5,7 @@ Import::These -  Terse, Prefixed, Multiple imports
 # SYNOPSIS
 
 Any name ending with :: is a prefix. Any later names in the list will use the
-prefix, until the prefix is set or otherwise modified
+prefix to create the full package name: 
 
 ```perl
 #Instead of this:
@@ -13,7 +13,6 @@ prefix, until the prefix is set or otherwise modified
 use Plack::Middleware::Session;
 use Plack::Middleware::Static;
 use Plack::Middleware::Lint;
-
 use IO::Compress::Gzip;
 use IO::Compress::Gunzip;
 use IO::Compress::Deflate;
@@ -27,7 +26,7 @@ use Import::These qw<
 >;
 ```
 
-Any name exactly equal to   :: clears the prefix,
+Any name exactly equal to  :: clears the prefix,
 
 ```perl
 use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
@@ -35,7 +34,7 @@ use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
 # Prefix::Another;
 ```
 
-A name beginning with :: and ending with :: appends the name to the prefix
+A name beginning with :: and ending with :: appends the name to the prefix:
 
 ```perl
 use Import::These "Plack::", "test", "::Middleware::", "Lint";
@@ -70,23 +69,121 @@ It works with any package providing a `import` subroutine. It also is
 compatible with recursive exporters such as [Export::These](https://metacpan.org/pod/Export%3A%3AThese) manipulating the
 export levels.
 
-# USAGE
+# USAGE EXAMPLES
 
-The usage is as per the synopsis example.
+## Simple Prefix
+
+A single prefix used for  multiple packages:
+
+```perl
+use Import::These qw<IO::Compress:: Gzip GunZip Defalte Inflate >;
+
+# Equivalent to:
+# use IO::Compress::Gzip
+# use IO::Compress::GunZip
+# use IO::Compress::Deflate
+# use IO::Compress::Inflate
+```
+
+## Appending Prefix
+
+Prefix is appended along the way:
+
+```perl
+use Import::These qw<IO:: File ::Compress:: Gzip GunZip Defalte Inflate >;
+
+# Equivalent to:
+# use IO::File
+# use IO::Compress::Gzip
+# use IO::Compress::GunZip
+# use IO::Compress::Deflate
+# use IO::Compress::Inflate
+```
+
+## Reset Prefix
+
+Completely change (reset) prefix to something else:
+
+```perl
+use Import::These qw<File::Spec Functions :: Compress:: Gzip GunZip Defalte Inflate >;
+
+# Equivalent to: 
+# use File::Spec::Functions
+# use IO::Compress::Gzip
+# use IO::Compress::GunZip
+# use IO::Compress::Deflate
+# use IO::Compress::Inflate
+```
+
+## No Default Import
+
+```perl
+use Import::These "File::Spec", "Functions"=>[];
+
+# Equivalent to:
+# use File::Spec::Functions ();
+
+```
+
+## Import names/groups
+
+```perl
+use Import::These "File::Spec", "Functions"=>["catfile"];
+
+# Equivalent to:
+# use File::Spec::Functions ("catfile");
+```
+
+## With Perl Version
+
+```perl
+use Import::These "v5.36", "File::Spec::", "Functions";
+
+# Equivalent to:
+# use v5.36;
+# use File::Spec::Functions;
+```
+
+## With Module Version
+
+```perl
+use Import::These "File::Spec::", "Functions", "v1.2";
+
+# Equivalent to:
+# use File::Spec::Functions v1.2;
+```
+
+## All Together Now
+
+```perl
+use Import::These qw<v5.36 File:: IO ::Spec:: Functions v1.2>, ["catfile"],  qw<:: IO::Compress:: Gzip GunZip Deflate Inflate>;
+
+# Equivalent to:
+# use v5.36;
+# use File::IO;
+# use File::Spec::Functions v1.2 "catfile"
+# use IO::Compress::Gzip;
+# use IO::Compress::GunZip;
+# use IO::Compress::Deflate;
+# use IO::Compress::Inflate;
+```
 
 # LIMITATIONS
 
 # TODO
 
-Better tests
+Possibly add module version support.
 
-# COMPARISON
+# COMPARISON TO OTHER MODULES
+
+[use](https://metacpan.org/pod/use) gives the ability to specify Perl and Module versions which this modules
+currently does not. However it doesn't support prefixes and uses more RAM.
 
 [import](https://metacpan.org/pod/import) works by loading ALL packages under a common prefix. Whether you need
 them or not.  That could be a lot of disk access and memory usage.
 
 [modules](https://metacpan.org/pod/modules) has automatic module installation using CPAN. However no
-prefix/wildcard support and uses **a lot** of ram for basic importing
+prefix/wildcard support and uses **a lot** of RAM for basic importing
 
 # REPOSITOTY and BUGS
 
