@@ -4,7 +4,7 @@ use warnings;
 use lib "t/lib";
 use Test::More;
 
-use Import::These "Import::These::", "InternalTest"=>["default_sub"];
+use Import::These "Import::These::", "InternalTest", "v1";
 
 my $res=eval {unimported( "a") };
 

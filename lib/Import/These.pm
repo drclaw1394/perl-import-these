@@ -28,7 +28,7 @@ sub import {
   # Force export level to look at this subs caller, not this sub. But do it in a
   # relative way to allow support for recursive importing
   #
-  local $Exporter::ExportLevel=$Exporter::ExportLevel+1;
+  local $Exporter::ExportLevel=($Exporter::ExportLevel||0)+1;
   my $i=0;
   while(@_){
     $k=shift;
@@ -45,7 +45,7 @@ sub import {
     elsif($r eq ""){
       if($k eq $marker){
         # End processing if we hit the marker
-        $prev_mod=$mod;
+        $prev_mod=$mod if $mod;
         $execute=!!$prev_mod;
       }
       elsif($k eq "::"){
@@ -93,8 +93,10 @@ sub import {
 
     # Attempt to execute/load what we have
     
+    
     if($execute){
-
+      #DEBUG
+      my @caller=caller $Exporter::ExportLevel;
       if($prev_mod){
         eval "require $prefix$prev_mod;";
         die "Could not require $prefix$prev_mod: $@" if $@;
@@ -197,9 +199,52 @@ compatible with recursive exporters such as L<Export::These> manipulating the
 export levels.
 
 
-=head1 USAGE
+=head1 USAGE EXAMPLES
 
-The usage is as per the synopsis example.
+=head2 Simple Prefix
+
+A single prefix is used for  multiple packages:
+
+  use Import::These qw<IO::Compress:: Gzip GunZip Defalte Inflate >;
+
+  #Imports:
+  # use IO::Compress::Gzip
+  # use IO::Compress::GunZip
+  # use IO::Compress::Deflate
+  # use IO::Compress::Inflate
+
+=head2 Appending Prefix
+
+Prefix is appended along the way:
+
+  use Import::These qw<IO:: File ::Compress:: Gzip GunZip Defalte Inflate >;
+  
+  #Imports:
+  # use IO::File
+  # use IO::Compress::Gzip
+  # use IO::Compress::GunZip
+  # use IO::Compress::Deflate
+  # use IO::Compress::Inflate
+
+=head2 Reset Prefix
+
+Completely change (reset) prefix to something else:
+
+  use Import::These qw<File::Spec Functions :: Compress:: Gzip GunZip Defalte Inflate >;
+
+  #Imports:
+  # use File::Spec::Functions
+  # use IO::Compress::Gzip
+  # use IO::Compress::GunZip
+  # use IO::Compress::Deflate
+  # use IO::Compress::Inflate
+
+=head2 With Module Version
+
+Specify a module version
+
+  use Import::These "File::Spec:: Functions 
+
 
 =head1 LIMITATIONS
 

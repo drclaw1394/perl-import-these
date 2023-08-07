@@ -1,16 +1,17 @@
 use strict;
 use warnings;
 
+use lib "t/lib";
 use Test::More;
 
-use Import::These "File::Spec::Functions"=>["catfile"];
+use Import::These "Import::These::InternalTest"=>["default_sub"];
 
-my $res=eval {cannonpath( "a") };
+my $res=eval {unimported_optional_sub()};
 
 ok $@,  "Unlisted import";
 
-$res=eval {catfile( "a","b","c") };
+$res=eval {default_sub};
 
-print $@ if $@;
 ok !$@,  "Listed import";
+ok $res==1, "Listed import";
 done_testing;
