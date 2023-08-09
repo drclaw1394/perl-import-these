@@ -11,7 +11,6 @@ sub import {
   no strict "refs";
 
   my $package=shift;
-  #my $target=$package eq __PACKAGE__ ? caller: $package;
 
   my $prefix="";
   my $k;
