@@ -17,3 +17,5 @@ sub default_sub{
 sub optional_sub {
 2;
 }
+
+1;

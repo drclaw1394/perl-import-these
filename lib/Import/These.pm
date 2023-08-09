@@ -2,6 +2,7 @@ package Import::These;
 
 use strict;
 use warnings;
+use feature "say";
 
 
 our $VERSION = 'v0.1.0';
@@ -28,11 +29,9 @@ sub import {
 
   push @_, $marker;
   
+  # Save the target export level
+  my $target_level=($Exporter::ExportLevel||0)+1;
 
-  # Force export level to look at this subs caller, not this sub. But do it in a
-  # relative way to allow support for recursive importing
-  #
-  local $Exporter::ExportLevel=($Exporter::ExportLevel||0)+1;
   my $i=0;
   while(@_){
     $k=shift;
@@ -100,18 +99,28 @@ sub import {
     
     if($execute){
       #DEBUG
-      my @caller=caller $Exporter::ExportLevel;
       if($prev_mod){
+        #say "REQUIRE $prefix$prev_mod";
+        # Force export level to 0 so any imports of required package are
+        # relative to required package
+        local $Exporter::ExportLevel=0;
         eval "require $prefix$prev_mod;";
         die "Could not require $prefix$prev_mod: $@" if $@;
       }
 
+      # After the package has been required, set the target level for import
+      #
+      local $Exporter::ExportLevel=$target_level;
+      #say "Target level is $Exporter::ExportLevel";
+
       if($version){
+        #say "IMPORTING $prefix$prev_mod with no import";
         "$prefix$prev_mod"->VERSION($version);
       }
 
       if($list and @$list){
         # List import
+        #say "IMPORTING $prefix$prev_mod with @$list";
         "$prefix$prev_mod"->import(@$list);
       }
       elsif($list and @$list ==0){
@@ -119,6 +128,7 @@ sub import {
       }
       else {
         # Default import
+        #say "IMPORTING $prefix$prev_mod with default";
         "$prefix$prev_mod"->import();
       }
       $prev_mod=undef;
@@ -127,6 +137,7 @@ sub import {
     }
     $i++;
   }
+  #say "END OF IMPORT::THESE IMPORT";
 }
 
 __PACKAGE__;
@@ -288,6 +299,10 @@ Completely change (reset) prefix to something else:
 
 
 =head1 COMPARISON TO OTHER MODULES
+
+L<Import::Base> Performs can perform multiple imports, however requires a
+custom package to group the imports and rexports them. Does not support
+prefixes.
 
 L<use> gives the ability to specify Perl and Module versions which this modules
 currently does not. However it doesn't support prefixes and uses more RAM.
