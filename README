@@ -1,8 +1,9 @@
 NAME
-    Import::These - Terse, Prefixed, Multiple imports
+    Import::These - Terse, Prefixed and Multiple Imports with a Single
+    Statement
 
 SYNOPSIS
-    Any name ending with :: is a prefix. Any later names in the list will
+    Any item ending with :: is a prefix. Any later items in the list will
     use the prefix to create the full package name:
 
       #Instead of this:
@@ -22,13 +23,13 @@ SYNOPSIS
         IO::Compress::      Gzip GunZip Defalte Inflate
       >;
 
-    Any name exactly equal to :: clears the prefix,
+    Any item is exactly equal to ::, the prefix is cleared:
 
       use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
       # Prefix::Mod
       # Prefix::Another;
 
-    A name beginning with :: and ending with :: appends the name to the
+    A item beginning with :: and ending with :: appends the item to the
     prefix:
 
       use Import::These "Plack::", "test", "::Middleware::", "Lint";
@@ -133,10 +134,6 @@ USAGE EXAMPLES
       # use IO::Compress::Deflate;
       # use IO::Compress::Inflate;
 
-LIMITATIONS
-TODO
-    Possibly add module version support.
-
 COMPARISON TO OTHER MODULES
     use gives the ability to specify Perl and Module versions which this
     modules currently does not. However it doesn't support prefixes and uses
@@ -145,8 +142,12 @@ COMPARISON TO OTHER MODULES
     import works by loading ALL packages under a common prefix. Whether you
     need them or not. That could be a lot of disk access and memory usage.
 
-    modules has automatic module installation using CPAN. However no
-    prefix/wildcard support and uses a lot of RAM for basic importing
+    modules has automatic module installation using CLAN. However no prefix
+    / wildcard support and uses a lot of RAM for basic importing
+
+    Importer has some nice features but not a 'simple' package prefix. It
+    also looks like it only handles a single package per invocation, which
+    doesn't address importing modules with a single statment.
 
 REPOSITOTY and BUGS
     Please report and feature requests or bugs via the github repo:

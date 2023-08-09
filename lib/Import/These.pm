@@ -6,7 +6,12 @@ use warnings;
 
 our $VERSION = 'v0.1.0';
 
+# Marker is pushed to end of argument list to aid in processing.
+# Make random to prevent collisions.
+#
 my $marker=join "", map int rand 26, 1..16;
+
+
 sub import {
   no strict "refs";
 
@@ -122,18 +127,17 @@ sub import {
     }
     $i++;
   }
-  #$Exporter::ExportLevel=$prev;
 }
 
 __PACKAGE__;
 
 =head1 NAME
 
-Import::These -  Terse, Prefixed, Multiple imports
+Import::These -  Terse, Prefixed and Multiple Imports with a Single Statement
 
 =head1 SYNOPSIS
 
-Any name ending with :: is a prefix. Any later names in the list will use the
+Any item ending with :: is a prefix. Any later items in the list will use the
 prefix to create the full package name: 
 
   #Instead of this:
@@ -155,14 +159,14 @@ prefix to create the full package name:
 
 
 
-Any name exactly equal to  :: clears the prefix,
+Any item is exactly equal to  ::, the prefix is cleared: 
 
   use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
   # Prefix::Mod
   # Prefix::Another;
 
 
-A name beginning with :: and ending with :: appends the name to the prefix:
+A item beginning with :: and ending with :: appends the item to the prefix:
 
   use Import::These "Plack::", "test", "::Middleware::", "Lint";
   # Plack::Test,
@@ -283,14 +287,6 @@ Completely change (reset) prefix to something else:
   # use IO::Compress::Inflate;
 
 
-=head1 LIMITATIONS
-
-
-=head1 TODO
-
-Possibly add module version support.
-
-
 =head1 COMPARISON TO OTHER MODULES
 
 L<use> gives the ability to specify Perl and Module versions which this modules
@@ -300,9 +296,12 @@ currently does not. However it doesn't support prefixes and uses more RAM.
 L<import> works by loading ALL packages under a common prefix. Whether you need
 them or not.  That could be a lot of disk access and memory usage.
 
-L<modules> has automatic module installation using CPAN. However no
-prefix/wildcard support and uses B<a lot> of RAM for basic importing
+L<modules> has automatic module installation using CLAN. However no
+prefix / wildcard support and uses B<a lot> of RAM for basic importing
 
+L<Importer> has some nice features but not a 'simple' package prefix. It also
+looks like it only handles a single package per invocation, which doesn't
+address importing modules with a single statment.
 
 =head1 REPOSITOTY and BUGS
 
