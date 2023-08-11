@@ -26,7 +26,7 @@ use Import::These qw<
 >;
 ```
 
-Any item is exactly equal to  ::, the prefix is cleared: 
+Any item exactly equal to  :: clears the prefix:
 
 ```perl
 use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
@@ -37,12 +37,12 @@ use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
 A item beginning with :: and ending with :: appends the item to the prefix:
 
 ```perl
-use Import::These "Plack::", "test", "::Middleware::", "Lint";
+use Import::These "Plack::", "Test", "::Middleware::", "Lint";
 # Plack::Test,
 # Plack::Middleware::Lint;
 ```
 
-Supports default, named/tagged, and no import 
+Supports default, named/tagged, and no import:
 
 ```perl
 # Instead of this:
@@ -58,18 +58,92 @@ use Import::These "File::Spec::", Functions,
                                   Functions=>[]
 ```
 
+Supports Perl Version as first argument to list
+
+```perl
+use Import::These qw<v5.36 Plack:: Test ::Middleware:: Lint>;
+# use v5.36;
+# Plack::Test,
+# Plack::Middleware::Lint;
+```
+
+Supports Module Version
+
+```perl
+use Import::These qw<File::Spec:: Functions 1.3>;
+# use File::Spec::Functions 1.3;
+#
+use Import::These qw<File::Spec:: Functions 1.3>, ["catfile"];
+# use File::Spec::Functions 1.3 "catfile";
+
+```
+
 # DESCRIPTION
 
-A tiny Importer module for importing multiple modules in one statement.
-Supports using prefix notation to reduce the repetition in importing modules in
-similar name spaces. The prefix can be set, cleared, or appended to multiple
-times in a list making long lists of imports much easier to type!
+A tiny module for importing multiple modules in one statement utilising a
+prefix. The prefix can be set, cleared, or appended multiple times in a list,
+making long lists of imports much easier to type!
 
-It works with any package providing a `import` subroutine. It also is
-compatible with recursive exporters such as [Export::These](https://metacpan.org/pod/Export%3A%3AThese) manipulating the
-export levels.
+It works with any package providing a `import` subroutine (i.e. compatible
+with [Exporter](https://metacpan.org/pod/Exporter). It also is compatible with recursive exporters such as
+[Export::These](https://metacpan.org/pod/Export%3A%3AThese) manipulating the export levels.
 
-# USAGE EXAMPLES
+# USAGE
+
+When using this pragma, the list of arguments are interpreted as either a Perl
+version, prefix mutation, module name, module version  or  array ref of symbols
+to import. The current value of the prefix is applied to module names as they
+appear in the list.
+
+- The prefix always starts out as an empty string.
+- The first item in the list is optionally a Perl version 
+- Module version optionally comes after a module name (prefixed or not)
+- Symbols list optionally comes after a module name or module version if used
+- The prefix can be set/cleared/appended as many times as needed 
+
+## Prefix Manipulation
+
+The current prefix is used for all module names as they occur. However, changes
+to the prefix can be interleaved within module names.
+
+### Set the Prefix
+
+```
+Name::
+
+# Prefix equals "Name::"
+```
+
+Any item in the list ending in "::" with result in the prefix being set to item (including the ::)
+
+### Append The Prefix
+
+```
+ ::Name::
+
+ # Prefix equals "OLDPREFIX::Name::"
+
+```
+
+Any item in the list starting and ending with "::" will result in the prefix
+having the item appended to it. The item has the leading "::" removed before
+appending.
+
+### Clear the Prefix
+
+```
+::
+
+#Prefix is ""
+
+```
+
+Any item in the list equal to "::" exactly will clear the prefix to an empty
+string
+
+# EXAMPLES
+
+The following examples make it easier to see the benefits of using this module:
 
 ## Simple Prefix
 
@@ -118,17 +192,17 @@ use Import::These qw<File::Spec Functions :: Compress:: Gzip GunZip Defalte Infl
 ## No Default Import
 
 ```perl
-use Import::These "File::Spec", "Functions"=>[];
+use Import::These "File::Spec::", "Functions"=>[];
 
 # Equivalent to:
 # use File::Spec::Functions ();
 
 ```
 
-## Import names/groups
+## Import Names/groups
 
 ```perl
-use Import::These "File::Spec", "Functions"=>["catfile"];
+use Import::These "File::Spec::", "Functions"=>["catfile"];
 
 # Equivalent to:
 # use File::Spec::Functions ("catfile");
@@ -170,18 +244,20 @@ use Import::These qw<v5.36 File:: IO ::Spec:: Functions v1.2>, ["catfile"],  qw<
 
 # COMPARISON TO OTHER MODULES
 
-[use](https://metacpan.org/pod/use) gives the ability to specify Perl and Module versions which this modules
-currently does not. However it doesn't support prefixes and uses more RAM.
+[Import::Base](https://metacpan.org/pod/Import%3A%3ABase) Performs can perform multiple imports, however requires a
+custom package to group the imports and reexport them. Does not support
+prefixes.
+
+[use](https://metacpan.org/pod/use) is very similar however does not support prefixes.
 
 [import](https://metacpan.org/pod/import) works by loading ALL packages under a common prefix. Whether you need
 them or not.  That could be a lot of disk access and memory usage.
 
-[modules](https://metacpan.org/pod/modules) has automatic module installation using CLAN. However no
-prefix / wildcard support and uses **a lot** of RAM for basic importing
+[modules](https://metacpan.org/pod/modules) has automatic module installation using CPAN. However no
+prefix support and uses **a lot** of RAM for basic importing
 
 [Importer](https://metacpan.org/pod/Importer) has some nice features but not a 'simple' package prefix. It also
-looks like it only handles a single package per invocation, which doesn't
-address importing modules with a single statment.
+looks like it only handles a single package per invocation
 
 # REPOSITOTY and BUGS
 

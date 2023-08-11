@@ -170,7 +170,7 @@ prefix to create the full package name:
 
 
 
-Any item is exactly equal to  ::, the prefix is cleared: 
+Any item exactly equal to  :: clears the prefix:
 
   use Import::These "Prefix::", "Mod", "::", "Prefix::Another";
   # Prefix::Mod
@@ -179,12 +179,12 @@ Any item is exactly equal to  ::, the prefix is cleared:
 
 A item beginning with :: and ending with :: appends the item to the prefix:
 
-  use Import::These "Plack::", "test", "::Middleware::", "Lint";
+  use Import::These "Plack::", "Test", "::Middleware::", "Lint";
   # Plack::Test,
   # Plack::Middleware::Lint;
 
 
-Supports default, named/tagged, and no import 
+Supports default, named/tagged, and no import:
 
   # Instead of this:
   #
@@ -198,21 +198,91 @@ Supports default, named/tagged, and no import
                                     Functions=>["catfile"],
                                     Functions=>[]
 
+Supports Perl Version as first argument to list
 
+  use Import::These qw<v5.36 Plack:: Test ::Middleware:: Lint>;
+  # use v5.36;
+  # Plack::Test,
+  # Plack::Middleware::Lint;
 
+Supports Module Version
+
+  use Import::These qw<File::Spec:: Functions 1.3>;
+  # use File::Spec::Functions 1.3;
+  #
+  use Import::These qw<File::Spec:: Functions 1.3>, ["catfile"];
+  # use File::Spec::Functions 1.3 "catfile";
+  
 =head1 DESCRIPTION
 
-A tiny Importer module for importing multiple modules in one statement.
-Supports using prefix notation to reduce the repetition in importing modules in
-similar name spaces. The prefix can be set, cleared, or appended to multiple
-times in a list making long lists of imports much easier to type!
+A tiny module for importing multiple modules in one statement utilising a
+prefix. The prefix can be set, cleared, or appended multiple times in a list,
+making long lists of imports much easier to type!
 
-It works with any package providing a C<import> subroutine. It also is
-compatible with recursive exporters such as L<Export::These> manipulating the
-export levels.
+It works with any package providing a C<import> subroutine (i.e. compatible
+with L<Exporter>. It also is compatible with recursive exporters such as
+L<Export::These> manipulating the export levels.
 
 
-=head1 USAGE EXAMPLES
+=head1 USAGE
+
+When using this pragma, the list of arguments are interpreted as either a Perl
+version, prefix mutation, module name, module version  or  array ref of symbols
+to import. The current value of the prefix is applied to module names as they
+appear in the list.
+
+
+=over
+
+=item The prefix always starts out as an empty string.
+
+=item The first item in the list is optionally a Perl version 
+
+=item Module version optionally comes after a module name (prefixed or not)
+
+=item Symbols list optionally comes after a module name or module version if used
+
+=item The prefix can be set/cleared/appended as many times as needed 
+
+=back
+
+=head2 Prefix Manipulation
+
+The current prefix is used for all module names as they occur. However, changes
+to the prefix can be interleaved within module names.
+
+
+=head3 Set the Prefix
+
+ Name::
+
+ # Prefix equals "Name::"
+
+Any item in the list ending in "::" with result in the prefix being set to item (including the ::)
+
+=head3 Append The Prefix
+
+  ::Name::
+
+  # Prefix equals "OLDPREFIX::Name::"
+ 
+Any item in the list starting and ending with "::" will result in the prefix
+having the item appended to it. The item has the leading "::" removed before
+appending.
+
+
+=head3 Clear the Prefix
+
+  ::
+  
+  #Prefix is ""
+  
+Any item in the list equal to "::" exactly will clear the prefix to an empty
+string
+
+=head1 EXAMPLES
+
+The following examples make it easier to see the benefits of using this module:
 
 =head2 Simple Prefix
 
@@ -255,14 +325,14 @@ Completely change (reset) prefix to something else:
 
 =head2 No Default Import
 
-  use Import::These "File::Spec", "Functions"=>[];
+  use Import::These "File::Spec::", "Functions"=>[];
 
   # Equivalent to:
   # use File::Spec::Functions ();
   
-=head2 Import names/groups
+=head2 Import Names/groups
 
-  use Import::These "File::Spec", "Functions"=>["catfile"];
+  use Import::These "File::Spec::", "Functions"=>["catfile"];
 
   # Equivalent to:
   # use File::Spec::Functions ("catfile");
@@ -301,22 +371,20 @@ Completely change (reset) prefix to something else:
 =head1 COMPARISON TO OTHER MODULES
 
 L<Import::Base> Performs can perform multiple imports, however requires a
-custom package to group the imports and rexports them. Does not support
+custom package to group the imports and reexport them. Does not support
 prefixes.
 
-L<use> gives the ability to specify Perl and Module versions which this modules
-currently does not. However it doesn't support prefixes and uses more RAM.
+L<use> is very similar however does not support prefixes.
 
 
 L<import> works by loading ALL packages under a common prefix. Whether you need
 them or not.  That could be a lot of disk access and memory usage.
 
-L<modules> has automatic module installation using CLAN. However no
-prefix / wildcard support and uses B<a lot> of RAM for basic importing
+L<modules> has automatic module installation using CPAN. However no
+prefix support and uses B<a lot> of RAM for basic importing
 
 L<Importer> has some nice features but not a 'simple' package prefix. It also
-looks like it only handles a single package per invocation, which doesn't
-address importing modules with a single statment.
+looks like it only handles a single package per invocation
 
 =head1 REPOSITOTY and BUGS
 
