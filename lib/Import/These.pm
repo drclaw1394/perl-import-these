@@ -5,7 +5,7 @@ use warnings;
 use feature "say";
 
 
-our $VERSION = 'v0.1.1';
+our $VERSION = 'v0.1.2';
 
 # Marker is pushed to end of argument list to aid in processing.
 # Make random to prevent collisions.
